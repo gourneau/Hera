@@ -53,7 +53,7 @@ void setup()
   up = true;
   
   
-  size(legend_width+spectrum_width, spectrum_height+legend_height, P2D);
+  size(legend_width+spectrum_width + 340, spectrum_height+legend_height, P2D);
   textMode(SCREEN);
   textFont(createFont("SanSerif", 12));
  
@@ -152,6 +152,7 @@ void draw()
   
   //threshold it
   myCapture.filter(THRESHOLD, 0.8);
+  
  
   int r, g, b;         //rgb values for pixel
   r = 0;
@@ -175,10 +176,19 @@ void draw()
    
   if (pix_sum > 1500){
     println("by zeus! I think we saw a flash");
+    timestamp();
   }
   
+  //we only want to do anything if vision then sound are triggered.
+  //maybe a 20 second timeout.
+  
+  //needs to check to see when the sound was heard, and compare it with the time the image was seen
+  //then calc the time diff
+  //then from time diff output distance of thunder
+  
   //draw that sucker
-  image(myCapture, 250, 0);
+  background(0);
+  image(myCapture, 575, 0);
 
     
   // add legend
