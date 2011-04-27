@@ -40,11 +40,15 @@ boolean up = false;
 import processing.video.*;
 Capture myCapture;
 
+//just one date
+Date d = new Date();
+  
 void setup()
 {
+
     // If no device is specified, will just use the default.
   if (up == false){
-     myCapture = new Capture(this, width, height, 30);
+     myCapture = new Capture(this, 320, 240, 30);
   }
   up = true;
   
@@ -73,12 +77,19 @@ void captureEvent(Capture myCapture) {
   myCapture.read();
 }
 
+  
+long timestamp() {
+    println( year() + "-" + month() + "-" + day() + "-" + hour() + "-" + minute() + "-" + second());
+    long current = d.getTime()/1000; 
+    return current;
+}
+
+
 void draw()
 {
   
   // clear window
   background(0);
-  image(myCapture, width - 100, 0);
   
   // perform a forward FFT on the samples in input buffer
   fft.forward(in.mix);
@@ -101,6 +112,7 @@ void draw()
   // now draw current spectrum in brighter blue
   stroke(64,192,255);
   noFill();
+
   for(int i = 0; i < spectrum_width; i++)  {
     // draw the line for frequency band i using dB scale
     float val = dB_scale*(20*((float)Math.log10(fft.getBand(i))) + gain);
@@ -117,7 +129,58 @@ void draw()
       peak_age[peaksi] = 0;
     }
   }
+    
+  //sum of the peaks
+  float sum_peaks = 0;
+  for (int i = 0; i < peaks.length ; i++) {
+    sum_peaks = sum_peaks + peaks[i];
+  }
+ 
+  //a crude way to find BIG SOUND!
+  float peak_summit = sum_peaks/peaks.length;
   
+  float sound_floor = 100;
+  
+  //note here that big sounds do not happen all in one instance but reverberate for some time
+  if (peak_summit > sound_floor){
+    println(peak_summit);
+    timestamp();
+  }
+
+
+  //image work
+  
+  //threshold it
+  myCapture.filter(THRESHOLD, 0.8);
+ 
+  int r, g, b;         //rgb values for pixel
+  r = 0;
+  g = 0;
+  b = 0;
+  long pix_sum = 0;
+  for (int i = 0; i <  myCapture.pixels.length ; i++){
+    r = (int)red(myCapture.pixels[i]);
+    g = (int)green(myCapture.pixels[i]);
+    b = (int)blue(myCapture.pixels[i]);
+    
+    //if it is a white pixel add it to the count
+    
+    // as i child i thought that 255 255 255 matched my intuition for bright light
+    // because all mater erupted from the glowing stars
+    // which in the light was the possibility for everything.
+    if (r == 255 && g ==255 && b == 255){
+      pix_sum = pix_sum + 1;
+    }
+  }
+   
+  if (pix_sum > 1500){
+    println("by zeus! I think we saw a flash");
+  }
+  
+  //draw that sucker
+  image(myCapture, 250, 0);
+
+    
   // add legend
   // frequency axis
   fill(255);
@@ -143,6 +206,7 @@ void draw()
   }
 
 }
+
 
 void keyReleased()
 {
