@@ -42,6 +42,8 @@ Capture myCapture;
 
 //just one date
 Date d = new Date();
+
+long lasttime = 0;
   
 void setup()
 {
@@ -140,18 +142,21 @@ void draw()
   float peak_summit = sum_peaks/peaks.length;
   
   float sound_floor = 100;
-  
+  fill(color(0,0,0));
+  rect(0, height-10, 5, 10);
   //note here that big sounds do not happen all in one instance but reverberate for some time
   if (peak_summit > sound_floor){
-    println(peak_summit);
-    timestamp();
+    fill(color(255,255,255));
+    rect(0, height-10, 5, 10);
+    //print(peak_summit + " at this time " );
+    lasttime = timestamp();
   }
 
 
   //image work
   
   //threshold it
-  myCapture.filter(THRESHOLD, 0.8);
+  myCapture.filter(THRESHOLD, 0.2);
   
  
   int r, g, b;         //rgb values for pixel
@@ -168,15 +173,17 @@ void draw()
     
     // as i child i thought that 255 255 255 matched my intuition for bright light
     // because all mater erupted from the glowing stars
-    // which in the light was the possibility for everything.
+    // in the light was the possibility for everything.
     if (r == 255 && g ==255 && b == 255){
       pix_sum = pix_sum + 1;
     }
   }
-   
-  if (pix_sum > 1500){
-    println("by zeus! I think we saw a flash");
-    timestamp();
+  
+  long boom = 0;
+  if (pix_sum > 300){
+    print("by zeus! I think we saw a flash at ");
+    boom = timestamp();
+    print(boom-lasttime);
   }
   
   //we only want to do anything if vision then sound are triggered.
@@ -187,7 +194,6 @@ void draw()
   //then from time diff output distance of thunder
   
   //draw that sucker
-  background(0);
   image(myCapture, 575, 0);
 
     
